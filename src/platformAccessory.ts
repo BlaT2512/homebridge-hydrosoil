@@ -49,7 +49,8 @@ export class HydroSoilAccessory {
       };
 
       request(reqParams, (error, response, body) => {
-        if (!error && response.statusCode === 200 && body['code'] === 200) {
+        if (!error && response.statusCode === 200 && JSON.parse(body)['code'] === 200) {
+          body = JSON.parse(body);
           // Push the new data to HomeKit
           for (const device of body[accessory.context.devtype]) {
             if (device['macaddr'] === accessory.context.device['macaddr']) {

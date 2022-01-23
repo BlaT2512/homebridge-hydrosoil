@@ -68,7 +68,8 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
 
       // Execute the request
       request(reqParams, (error, response, body) => {
-        if (!error && response.statusCode === 200 && body['code'] === 200) {
+        if (!error && response.statusCode === 200 && JSON.parse(body)['code'] === 200) {
+          body = JSON.parse(body);
           setupSuccess = true;
           delete body['code'];
           hydroDevices = body;
