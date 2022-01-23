@@ -90,7 +90,7 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
     }
 
     // Loop over the discovered devices and register each one if it has not already been registered
-    this.log.warn(hydroDevices['hydrosensors']);
+    this.log.warn(hydroDevices);
     for (const device of hydroDevices['hydrosensors']) {
       // Check if the device already exists
       const uuid = this.api.hap.uuid.generate(device['macaddr']);
