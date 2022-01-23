@@ -69,10 +69,10 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
       // Execute the request
       request(reqParams, (error, response, body) => {
         if (!error && response.statusCode === 200 && JSON.parse(body)['code'] === 200) {
-          body = JSON.parse(body);
+          const bodyjs = JSON.parse(body);
           setupSuccess = true;
-          delete body['code'];
-          hydroDevices = body;
+          delete bodyjs['code'];
+          hydroDevices = bodyjs;
         } else if (response.statusCode === 401) {
           this.log.error('Error: Username or password supplied is incorrect. Please click the settings button below the homebridge-hydrosoil module to change.');
         } else {
