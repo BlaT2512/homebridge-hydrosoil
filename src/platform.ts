@@ -67,6 +67,7 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
       };
 
       // Execute the request
+      this.log.warn('API Request is ' + reqParams.uri);
       request(reqParams, (error, response, body) => {
         if (!error && response.statusCode === 200 && body['code'] === 200) {
           setupSuccess = true;
