@@ -76,11 +76,6 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
         } else if (response.statusCode === 401) {
           this.log.error('Error: Username or password supplied is incorrect. Please click the settings button below the homebridge-hydrosoil module to change.');
         } else {
-          this.log.error('Error from Request: ' + error);
-          this.log.error('Status Code: ' + response.statusCode);
-          this.log.error('Body Code: ' + body['code']);
-          this.log.error('Body Code: ' + body.code);
-          this.log.error('Body: ' + body);
           this.log.error('Error: Server unexpectedly failed to process request. Please try again later or submit a bug report on GitHub.');
         }
       });
@@ -95,6 +90,7 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
     }
 
     // Loop over the discovered devices and register each one if it has not already been registered
+    this.log.warn(hydroDevices['hydrosensors']);
     for (const device of hydroDevices['hydrosensors']) {
       // Check if the device already exists
       const uuid = this.api.hap.uuid.generate(device['macaddr']);
