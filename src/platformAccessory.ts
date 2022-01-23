@@ -33,9 +33,16 @@ export class HydroSoilAccessory {
       this.accessory.addService(this.platform.Service.HumiditySensor);
     this.motionSensor = this.accessory.getService('Watering Needed') ||
       this.accessory.addService(this.platform.Service.MotionSensor, 'Watering Needed', accessory.context.device['macaddr'] + '-MOTION');
-
     this.humiditySensor.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device['nickname']);
     this.motionSensor.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device['nickname']);
+
+    // Add latest data
+    this.humiditySensor.updateCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity, (accessory.context.device['value']/10.24).toFixed());
+    if (accessory.context.device['value']/10.24 < accessory.context.device['waterlevel']) {
+      this.motionSensor.updateCharacteristic(this.platform.Characteristic.MotionDetected, true);
+    } else {
+      this.motionSensor.updateCharacteristic(this.platform.Characteristic.MotionDetected, false);
+    }
 
     // Add handlers for the sensors to update data every 5 minutes
     setInterval(() => {
