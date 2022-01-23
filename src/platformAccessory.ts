@@ -21,12 +21,8 @@ export class HydroSoilAccessory {
     // Set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'HydroSoil')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.device['macaddr']);
-
-    if (accessory.context.devtype === 'hydrosensors') {
-      this.accessory.getService(this.platform.Service.AccessoryInformation)!
-        .setCharacteristic(this.platform.Characteristic.Model, 'HydroSensor');
-    }
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.device['macaddr'])
+      .setCharacteristic(this.platform.Characteristic.Model, accessory.context.device['dispName']);
 
     // Add the Humidity and Motion sensors, and configure them
     this.humiditySensor = this.accessory.getService(this.platform.Service.HumiditySensor) ||

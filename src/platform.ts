@@ -42,9 +42,6 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
    * Searches HydroSoil account for devices and registers them all as accessories for controlling
   */
   discoverDevices() {
-
-    let setupSuccess = false;
-    let hydroDevices = [];
     let excllist = '';
     if (this.config.username !== '' && this.config.password !== '' && this.config.exposed_devs !== []) {
 
@@ -69,47 +66,95 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
       // Execute the request
       request(reqParams, (error, response, body) => {
         if (!error && response.statusCode === 200 && JSON.parse(body)['code'] === 200) {
-          setupSuccess = true;
-          hydroDevices = JSON.parse(body);
+          const hydroDevices = JSON.parse(body);
 
           // Loop over the discovered devices and register each one if it has not already been registered
-          for (const device of hydroDevices['hydrosensors']) {
-            // Check if the device already exists
-            const uuid = this.api.hap.uuid.generate(device['macaddr']);
-            const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-            if (existingAccessory) {
-              // The accessory already exists, restore and update it's device context
-              this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-              existingAccessory.context.device = device;
-              existingAccessory.context.devtype = 'hydrosensors';
-              existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
-              this.api.updatePlatformAccessories([existingAccessory]);
-              new HydroSoilAccessory(this, existingAccessory);
+          // HydroSensors
+          if (this.config.exposed_devs.includes('HydroSensors (Regular)')) {
+            for (const device of hydroDevices['hydrosensors']) {
+              // Check if the device already exists
+              const uuid = this.api.hap.uuid.generate(device['macaddr']);
+              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+              if (existingAccessory) {
+                // The accessory already exists, restore and update it's device context
+                existingAccessory.context.device = device;
+                existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+                this.api.updatePlatformAccessories([existingAccessory]);
+                new HydroSoilAccessory(this, existingAccessory);
+              } else {
+                // Create a new accessory, register it and store device context
+                const accessory = new this.api.platformAccessory(device['nickname'], uuid);
+                accessory.context.device = device;
+                accessory.context.dispName = 'HydroSensor';
+                accessory.context.devtype = 'hydrosensors';
+                accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+                new HydroSoilAccessory(this, accessory);
+                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+              }
+            }
+          }
 
-            } else {
-              // Create a new accessory, register it and store device context
-              const accessory = new this.api.platformAccessory(device['nickname'], uuid);
-              accessory.context.device = device;
-              accessory.context.devtype = 'hydrosensors';
-              accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
-              new HydroSoilAccessory(this, accessory);
-              this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+          // HydroSensors +
+          if (this.config.exposed_devs.includes('HydroSensors +')) {
+            for (const device of hydroDevices['hydrosensorsplus']) {
+              // Check if the device already exists
+              const uuid = this.api.hap.uuid.generate(device['macaddr']);
+              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+              if (existingAccessory) {
+                // The accessory already exists, restore and update it's device context
+                existingAccessory.context.device = device;
+                existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+                this.api.updatePlatformAccessories([existingAccessory]);
+                new HydroSoilAccessory(this, existingAccessory);
+              } else {
+                // Create a new accessory, register it and store device context
+                const accessory = new this.api.platformAccessory(device['nickname'], uuid);
+                accessory.context.device = device;
+                accessory.context.dispName = 'HydroSensor +';
+                accessory.context.devtype = 'hydrosensorsplus';
+                accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+                new HydroSoilAccessory(this, accessory);
+                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+              }
+            }
+          }
+
+          // Valve Boards
+          if (this.config.exposed_devs.includes('Valve Boards')) {
+            for (const device of hydroDevices['controlunits']) {
+              // Check if the device already exists
+              const uuid = this.api.hap.uuid.generate(device['macaddr']);
+              const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+              if (existingAccessory) {
+                // The accessory already exists, restore and update it's device context
+                existingAccessory.context.device = device;
+                existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+                this.api.updatePlatformAccessories([existingAccessory]);
+                new HydroSoilAccessory(this, existingAccessory);
+              } else {
+                // Create a new accessory, register it and store device context
+                const accessory = new this.api.platformAccessory(device['nickname'], uuid);
+                accessory.context.device = device;
+                accessory.context.dispName = 'Valve Control Unit';
+                accessory.context.devtype = 'controlunits';
+                accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+                new HydroSoilAccessory(this, accessory);
+                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+              }
             }
           }
 
         } else if (response.statusCode === 401) {
           this.log.error('Error: Username or password supplied is incorrect. Please click the settings button below the homebridge-hydrosoil module to change.');
+          this.log.warn('Warning: HydroSoil plugin inactive. Please address specified issue and reboot Homebridge to re-attempt setup.');
         } else {
           this.log.error('Error: Server unexpectedly failed to process request. Please try again later or submit a bug report on GitHub.');
+          this.log.warn('Warning: HydroSoil plugin inactive. Please address specified issue and reboot Homebridge to re-attempt setup.');
         }
       });
 
     } else {
       this.log.error('Error: Username, password and/or devices not provided. Please click the settings button below the homebridge-hydrosoil module to configure.');
-    }
-
-    if (!setupSuccess) {
-      // Warn the user the plugin will be inactive until the user fixes the specified error
       this.log.warn('Warning: HydroSoil plugin inactive. Please address specified issue and reboot Homebridge to re-attempt setup.');
     }
   }
