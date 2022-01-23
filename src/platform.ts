@@ -67,7 +67,6 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
       };
 
       // Execute the request
-      this.log.warn('API Request is ' + reqParams.uri);
       request(reqParams, (error, response, body) => {
         if (!error && response.statusCode === 200 && body['code'] === 200) {
           setupSuccess = true;
@@ -76,6 +75,11 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
         } else if (response.statusCode === 401) {
           this.log.error('Error: Username or password supplied is incorrect. Please click the settings button below the homebridge-hydrosoil module to change.');
         } else {
+          this.log.error('Error from Request: ' + error);
+          this.log.error('Status Code: ' + response.statusCode);
+          this.log.error('Body Code: ' + body['code']);
+          this.log.error('Body Code: ' + body.code);
+          this.log.error('Body: ' + body);
           this.log.error('Error: Server unexpectedly failed to process request. Please try again later or submit a bug report on GitHub.');
         }
       });
