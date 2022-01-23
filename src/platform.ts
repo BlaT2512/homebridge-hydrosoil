@@ -69,10 +69,34 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
       // Execute the request
       request(reqParams, (error, response, body) => {
         if (!error && response.statusCode === 200 && JSON.parse(body)['code'] === 200) {
-          const bodyjs = JSON.parse(body);
           setupSuccess = true;
-          delete bodyjs['code'];
-          hydroDevices = bodyjs;
+          hydroDevices = JSON.parse(body);
+
+          // Loop over the discovered devices and register each one if it has not already been registered
+          for (const device of hydroDevices['hydrosensors']) {
+            // Check if the device already exists
+            const uuid = this.api.hap.uuid.generate(device['macaddr']);
+            const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+            if (existingAccessory) {
+              // The accessory already exists, restore and update it's device context
+              this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+              existingAccessory.context.device = device;
+              existingAccessory.context.devtype = 'hydrosensors';
+              existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+              this.api.updatePlatformAccessories([existingAccessory]);
+              new HydroSoilAccessory(this, existingAccessory);
+
+            } else {
+              // Create a new accessory, register it and store device context
+              const accessory = new this.api.platformAccessory(device['nickname'], uuid);
+              accessory.context.device = device;
+              accessory.context.devtype = 'hydrosensors';
+              accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
+              new HydroSoilAccessory(this, accessory);
+              this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+            }
+          }
+
         } else if (response.statusCode === 401) {
           this.log.error('Error: Username or password supplied is incorrect. Please click the settings button below the homebridge-hydrosoil module to change.');
         } else {
@@ -87,32 +111,6 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
     if (!setupSuccess) {
       // Warn the user the plugin will be inactive until the user fixes the specified error
       this.log.warn('Warning: HydroSoil plugin inactive. Please address specified issue and reboot Homebridge to re-attempt setup.');
-    }
-
-    // Loop over the discovered devices and register each one if it has not already been registered
-    this.log.warn(hydroDevices['hydrosensors'][0]['macaddr']);
-    for (const device of hydroDevices['hydrosensors']) {
-      // Check if the device already exists
-      const uuid = this.api.hap.uuid.generate(device['macaddr']);
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-      if (existingAccessory) {
-        // The accessory already exists, restore and update it's device context
-        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-        existingAccessory.context.device = device;
-        existingAccessory.context.devtype = 'hydrosensors';
-        existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
-        this.api.updatePlatformAccessories([existingAccessory]);
-        new HydroSoilAccessory(this, existingAccessory);
-
-      } else {
-        // Create a new accessory, register it and store device context
-        const accessory = new this.api.platformAccessory(device['nickname'], uuid);
-        accessory.context.device = device;
-        accessory.context.devtype = 'hydrosensors';
-        accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=' + excllist;
-        new HydroSoilAccessory(this, accessory);
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      }
     }
   }
 }
