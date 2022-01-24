@@ -1,7 +1,5 @@
 import request = require('request');
-
 import { Service, PlatformAccessory } from 'homebridge';
-
 import { HydroSoilHomebridge } from './platform';
 
 /**
