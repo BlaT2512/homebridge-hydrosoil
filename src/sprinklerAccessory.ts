@@ -38,7 +38,7 @@ export class SprinklerAccessory {
       this.service[0].updateCharacteristic(this.platform.Characteristic.ProgramMode, this.platform.Characteristic.ProgramMode.PROGRAM_SCHEDULED_MANUAL_MODE_);
     }
 
-    if (accessory.context.device['valvedata'].length() > 1) {
+    if (accessory.context.device['valvedata'].length > 1) {
       for (const valve of accessory.context.device['valvedata']) {
         if (valve['v'] > 1) {
           this.service.push(this.accessory.getService(this.platform.Service.IrrigationSystem) ||
