@@ -119,20 +119,20 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
 
           // Valve Boards
           if (this.config.exposed_devs.includes('Valve Boards')) {
-            if (hydroDevices['controlunits']['valvedata'].length() === 1) {
+            if (hydroDevices['controlunits'][0]['valvedata'].length() === 1) {
               // Check if the device already exists
               const uuid = this.api.hap.uuid.generate(hydroDevices['controlunits'][0]['macaddr']);
               const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
               if (existingAccessory) {
                 // The accessory already exists, restore and update it's device context
-                existingAccessory.context.device = hydroDevices['controlunits'];
+                existingAccessory.context.device = hydroDevices['controlunits'][0];
                 existingAccessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=sp';
                 this.api.updatePlatformAccessories([existingAccessory]);
                 new SprinklerAccessory(this, existingAccessory);
               } else {
                 // Create a new accessory, register it and store device context
                 const accessory = new this.api.platformAccessory('Valve Control Unit', uuid);
-                accessory.context.device = hydroDevices['controlunits'];
+                accessory.context.device = hydroDevices['controlunits'][0];
                 accessory.context.request = 'https://hydrosoil.tk/api/getaccdatax.php?username=' + this.config.username + '&password=' + this.config.password + '&exclude=sp';
                 new SprinklerAccessory(this, accessory);
                 this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
