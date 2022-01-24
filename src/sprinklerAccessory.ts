@@ -73,7 +73,7 @@ export class SprinklerAccessory {
         if (!error && response.statusCode === 200 && JSON.parse(body)['code'] === 200) {
           body = JSON.parse(body);
           // Push the new data to HomeKit
-          for (const valve of body['controlunits']['valvedata']) {
+          for (const valve of body['controlunits'][0]['valvedata']) {
             this.service[valve['v']-1].updateCharacteristic(this.platform.Characteristic.Active, valve['a']);
             this.service[valve['v']-1].updateCharacteristic(this.platform.Characteristic.InUse, valve['a']);
             if (valve['r'] === 'auto') {
