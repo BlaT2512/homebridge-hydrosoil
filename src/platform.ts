@@ -119,7 +119,7 @@ export class HydroSoilHomebridge implements DynamicPlatformPlugin {
 
           // Valve Boards
           if (this.config.exposed_devs.includes('Valve Boards')) {
-            if (hydroDevices['controlunits'].length() === 1) {
+            if (hydroDevices['controlunits']['valvedata'].length() === 1) {
               // Check if the device already exists
               const uuid = this.api.hap.uuid.generate(hydroDevices['controlunits'][0]['macaddr']);
               const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
